@@ -8,7 +8,9 @@ stocks = {'Apple':'AAPL',
             'American Express':'AXP',
             'Nike':'NKE',
             'JP Morgan':'JPM',
-            'Starbucks':'SBUX'}
+            'Starbucks':'SBUX',
+            'S&P': 'SPY'}
+
 
 df = generate_data(stocks=stocks,start='2017-01-01',end='2022-12-31')
 
