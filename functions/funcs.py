@@ -15,7 +15,9 @@ def generate_data(stocks: dict, start: str, end: str, band:int, windows: list, i
             start: A date to for start of data, format 'YYYY-MM-DD'
             end: A date for end of date, format 'YYYY-MM-DD'
             band: size of standard deviations to compare buy or sell signal
-            windos: A list of windows used to calculate moving averages and std
+            windows: A list of windows used to calculate moving averages and std
+            initial: Initial dollar amount of portfolio
+
 
         returns a: 
             pandas dataframe
@@ -31,7 +33,8 @@ def generate_data(stocks: dict, start: str, end: str, band:int, windows: list, i
         df['stock'] = stock
         df['ticker'] = ticker
 
-        df['initial'] = initial
+        df['initial'] = 0
+        df.loc[0,'initial'] = initial
 
         df['cash'] = df['initial']
         df['shares'] = 0
@@ -88,7 +91,7 @@ def generate_data(stocks: dict, start: str, end: str, band:int, windows: list, i
                  ,'buy_or_sell_10','buy_or_sell_30'
                  ,'buy_or_sell_60','buy_or_sell_90'
                  ,'daily_price_change', 'initial'
-                 , 'shares', 'shares_values']]
+                 , 'shares', 'shares_value']]
 
         dfs.append(df)
 
