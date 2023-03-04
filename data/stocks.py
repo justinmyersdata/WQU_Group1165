@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 def main():
     #Stocks we will be looking at
     stocks = {'Apple':'AAPL',
-                'Coca-Coke':'KO',
+                'Coca-Cola':'KO',
                 'J&J':'JNJ',
                 'American Express':'AXP',
                 'Nike':'NKE',
@@ -18,7 +18,7 @@ def main():
                 'S&P': 'SPY'}
 
 
-    df = generate_data(stocks=stocks,start='2017-01-01',end='2022-12-31',band=2)
+    df = generate_data(stocks=stocks,start='2017-01-01',end='2022-12-31',band=2, windows=[5,10,30,60,90])
 
     apple_df = df[df['stock']=='Apple']
 
