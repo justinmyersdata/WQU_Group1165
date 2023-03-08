@@ -36,10 +36,6 @@ def generate_data(stocks: dict, start: str, end: str, band:int, windows: list, i
         df['initial'] = 0
         df.loc[0,'initial'] = initial
 
-        df['cash'] = df['initial']
-        df['shares'] = 0
-        df['shares_value'] = 0
-
         df['daily_price_change'] = df['close'] - df['open']
 
         df['5_day_ma_close'] = df['close'].rolling(5,min_periods=1).mean()
@@ -50,48 +46,65 @@ def generate_data(stocks: dict, start: str, end: str, band:int, windows: list, i
 
         df['daily_return'] = np.log(df['close']/df['open'])
         df['cum_return'] = df['daily_return'].cumsum()
-        
+
         df['5_day_return'] = df['daily_return'].rolling(5,min_periods=1).sum()
         df['10_day_return'] = df['daily_return'].rolling(10,min_periods=1).sum()
-        
-        df['5_day_ma_return'] = df['daily_return'].rolling(5,min_periods=1).mean()
-        df['5_day_ma_return_std'] = df['daily_return'].rolling(5,min_periods=1).std()
-
-        df['10_day_ma_return'] = df['daily_return'].rolling(10,min_periods=1).mean()
-        df['10_day_ma_return_std'] = df['daily_return'].rolling(10,min_periods=1).std()
-
-        df['30_day_ma_return'] = df['daily_return'].rolling(30,min_periods=1).mean()
-        df['30_day_ma_return_std'] = df['daily_return'].rolling(30,min_periods=1).std()
-        
-        df['60_day_ma_return'] = df['daily_return'].rolling(60,min_periods=1).mean()
-        df['60_day_ma_return_std'] = df['daily_return'].rolling(60,min_periods=1).std()
-
-        df['90_day_ma_return'] = df['daily_return'].rolling(90,min_periods=1).mean()
-        df['90_day_ma_return_std'] = df['daily_return'].rolling(90,min_periods=1).std()
-
-        for window in windows:
-            df[f'buy_or_sell_next_day_{window}'] = df.apply(buy_or_sell,size=window,band=band,axis=1)
-            df[f'buy_or_sell_{window}'] = df[f'buy_or_sell_next_day_{window}'].shift(1)
 
         df['return_flag'] = 0
         df.loc[df['daily_return']>0, 'return_flag'] = 1
-        
 
-        df = df[['date','stock','ticker','open','close'
-                 ,'5_day_ma_close','10_day_ma_close'
-                 ,'volume','5_day_ma_volume','10_day_ma_volume'
-                 ,'daily_return','cum_return'
-                 ,'5_day_return','10_day_return'
-                 ,'5_day_ma_return', '5_day_ma_return_std'
-                 ,'10_day_ma_return', '10_day_ma_return_std'
-                 ,'30_day_ma_return','30_day_ma_return_std'
-                 ,'60_day_ma_return','60_day_ma_return_std'
-                 ,'90_day_ma_return','90_day_ma_return_std','return_flag'
-                 ,'buy_or_sell_5'
-                 ,'buy_or_sell_10','buy_or_sell_30'
-                 ,'buy_or_sell_60','buy_or_sell_90'
-                 ,'daily_price_change', 'initial'
-                 , 'shares', 'shares_value']]
+
+        for window in windows:
+            df[f'cash_{window}'] = df['initial']
+            df[f'shares_{window}'] = 0
+            df[f'shares_value_{window}'] = 0
+
+            df[f'{window}_day_ma_return'] = df['daily_return'].rolling(window,min_periods=1).mean()
+            df[f'{window}_day_ma_return_std'] = df['daily_return'].rolling(window,min_periods=1).std()
+
+            df[f'buy_or_sell_next_day_{window}'] = df.apply(buy_or_sell,size=window,band=band,axis=1)
+            df[f'buy_or_sell_{window}'] = df[f'buy_or_sell_next_day_{window}'].shift(1)
+
+        
+        for i in range(1, len(df)):
+
+            for window in windows:
+                if df.loc[i, f'buy_or_sell_{window}'] == 1:
+                    df.loc[i, f'shares_{window}'] = df.loc[i-1, f'cash_{window}']/df.loc[i, 'open'] + df.loc[i-1, f'shares_{window}']
+                    df.loc[i, f'cash_{window}'] = 0
+                    df.loc[i, f'shares_value_{window}'] = df.loc[i-1, f'cash_{window}'] + df.loc[i-1, f'shares_{window}']*df.loc[i, 'open']
+                
+                elif df.loc[i, f'buy_or_sell_{window}'] == -1:
+                    df.loc[i, f'cash_{window}'] = df.loc[i-1, f'shares_{window}']*df.loc[i, 'open'] + df.loc[i-1, f'cash_{window}']
+                    df.loc[i, f'shares_{window}'] = 0
+                    df.loc[i, f'shares_value_{window}'] = 0
+            
+                else:
+                    df.loc[i, f'cash_{window}'] = df.loc[i-1, f'cash_{window}']
+                    df.loc[i, f'shares_{window}'] = df.loc[i-1, f'shares_{window}']
+                    df.loc[i, f'shares_value_{window}'] = df.loc[i, f'shares_{window}']*df.loc[i, 'open']
+
+            
+            
+        for window in windows:
+            df[f'portfolio_value_{window}'] = df[[f'cash_{window}',f'shares_value_{window}']].max(axis=1)
+        
+        fixed_columns = ['date','stock','ticker','open','close'
+                        ,'5_day_ma_close','10_day_ma_close'
+                        ,'volume','5_day_ma_volume','10_day_ma_volume'
+                        ,'daily_return','cum_return'
+                        ,'5_day_return','10_day_return'
+                        ,'daily_price_change', 'initial']
+        
+        gen_columns = []
+        for window in windows:
+            gen_columns += [f'{window}_day_ma_return', f'{window}_day_ma_return_std'
+                            , f'buy_or_sell_{window}', f'buy_or_sell_next_day_{window}'
+                            , f'cash_{window}',f'shares_{window}', f'shares_value_{window}'
+                            , f'portfolio_value_{window}']
+
+
+        df = df[fixed_columns+gen_columns]
 
         dfs.append(df)
 
