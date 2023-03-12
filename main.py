@@ -3,7 +3,10 @@ import sys
 
 
 """Example call of main function
-python main.py AAPL,SPY,VOO 2020-01-01 2021-01-01 2 30,60,90 1000 /data.csv"""
+python main.py AAPL,SPY,VOO 2020-01-01 2021-01-01 2 30,60,90 1000 /data.csv
+OR
+python main.py
+"""
 if __name__=='__main__':
 
     if len(sys.argv)==1:
