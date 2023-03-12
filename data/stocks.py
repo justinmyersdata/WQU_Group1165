@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import sys
 import os
 
-def main(tickers,path,start='2017-01-01',end='2022-12-31',band=2,windows=[5,10,30,60,90],initial=1000):
+def main(tickers=None,path=None,start='2017-01-01',end='2022-12-31',band=2,windows=[5,10,30,60,90],initial=1000):
     #Stocks we will be looking at
     # tickers = {'Apple':'AAPL',
     #             'Coca-Cola':'KO',
@@ -18,7 +18,7 @@ def main(tickers,path,start='2017-01-01',end='2022-12-31',band=2,windows=[5,10,3
     #             'JP Morgan':'JPM',
     #             'Starbucks':'SBUX',
     #             'S&P': 'SPY'}
-    if len(tickers)<1:
+    if not tickers:
         tickers = ['AAPL','SPY']
 
 
