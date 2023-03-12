@@ -1,6 +1,9 @@
 from data.stocks import main
 import sys
 
+
+"""Example call of main function
+python main.py AAPL,SPY,VOO 2020-01-01 2021-01-01 2 30,60,90 1000 /data.csv"""
 if __name__=='__main__':
 
     tickers = sys.argv[1].split(',')
@@ -9,10 +12,13 @@ if __name__=='__main__':
     band = 4
     windows = [int(x) for x in sys.argv[5].split(',')]
     initial = float(sys.argv[6])
+
+    path = sys.argv[7] if len(sys.argv) > 7 else None
     
     main(tickers=tickers
         ,start=start
         ,end=end
         ,band=band
         ,windows=windows
-        ,initial=initial)
+        ,initial=initial
+        ,path=path)
