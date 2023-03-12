@@ -5,24 +5,25 @@
 
 from functions.funcs import generate_data
 from matplotlib import pyplot as plt
+import sys
 
-def main():
+def main(tickers,start='2017-01-01',end='2022-12-31',band=2,windows=[5,10,30,60,90],initial=1000):
     #Stocks we will be looking at
-    stocks = {'Apple':'AAPL',
-                'Coca-Cola':'KO',
-                'J&J':'JNJ',
-                'American Express':'AXP',
-                'Nike':'NKE',
-                'JP Morgan':'JPM',
-                'Starbucks':'SBUX',
-                'S&P': 'SPY'}
+    # tickers = {'Apple':'AAPL',
+    #             'Coca-Cola':'KO',
+    #             'J&J':'JNJ',
+    #             'American Express':'AXP',
+    #             'Nike':'NKE',
+    #             'JP Morgan':'JPM',
+    #             'Starbucks':'SBUX',
+    #             'S&P': 'SPY'}
+    if len(tickers)<1:
+        tickers = ['AAPL','SPY']
 
 
-    df = generate_data(stocks=stocks,start='2017-01-01',end='2022-12-31',band=2, windows=[5,10,30,60,90])
+    df = generate_data(tickers=tickers,start=start,end=end,band=band, windows=windows,initial=initial)
 
-    apple_df = df[df['stock']=='Apple']
+    df.to_csv("C:/Users/JustinMyers/Desktop/Justin.csv")
 
-    plt.plot(apple_df['date'],apple_df['open'])
-    plt.plot(apple_df['date'],apple_df['close'])
-    plt.show()
+    print(df.head())
 
