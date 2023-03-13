@@ -93,7 +93,7 @@ def generate_data(tickers: list, start: str, end: str, band:int, windows: list, 
                         ,'volume','5_day_ma_volume','10_day_ma_volume'
                         ,'daily_return','cum_return'
                         ,'5_day_return','10_day_return'
-                        ,'daily_price_change', 'initial']
+                        ,'daily_price_change', 'initial', 'return_flag']
         
         gen_columns = []
         for window in windows:
@@ -115,7 +115,7 @@ def agg_stats(df,windows):
 
     for window in windows:
         print('---------------------------------------')
-        print(pd.pivot_table(df, values='stock', 
+        print(pd.pivot_table(df, values='ticker', 
                                 index=f'buy_or_sell_{window}', 
                                 columns='return_flag', 
                                 aggfunc=np.count_nonzero))
